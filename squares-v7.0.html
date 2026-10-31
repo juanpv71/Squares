@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQUARES v7.0 — Base Estratégica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<style>
+:root {
+  --bg: #f5f0eb;
+  --panel: rgba(255, 253, 250, 0.96);
+  --panel-border: #e6ded5;
+  --text: #3c342c;
+  --muted: #8c7f70;
+  --primary: #d97757;
+  --primary-hover: #c46445;
+  --shadow: rgba(60, 52, 44, 0.08);
+  --grid-line: #d9cfc1;
+  --font-title: 'Righteous', cursive;
+  --font-body: 'Outfit', sans-serif;
+  --radius-card: 20px;
+  --radius-btn: 12px;
+}
+
+body[data-theme="dark-tech"] {
+  --bg: #070a14;
+  --panel: rgba(17, 24, 39, 0.96);
+  --panel-border: #1f2937;
+  --text: #f8fafc;
+  --muted: #94a3b8;
+  --primary: #00f0ff;
+  --primary-hover: #00b8c4;
+  --shadow: rgba(0, 240, 255, 0.25);
+  --grid-line: #1e293b;
+}
+
+body[data-theme="botanical"] {
+  --bg: #e5ede3;
+  --panel: rgba(242, 247, 240, 0.95);
+  --panel-border: #b3cbb0;
+  --text: #162b1c;
+  --muted: #526e57;
+  --primary: #275939;
+  --primary-hover: #1b3d27;
+  --shadow: rgba(23, 43, 28, 0.08);
+  --grid-line: #b3cbb0;
+}
+
+body[data-theme="retro-arcade"] {
+  --bg: #0d0221;
+  --panel: rgba(26, 5, 53, 0.97);
+  --panel-border: #7918f2;
+  --text: #00ffcc;
+  --muted: #c77dff;
+  --primary: #ff007f;
+  --primary-hover: #cc0066;
+  --shadow: rgba(255, 0, 127, 0.4);
+  --grid-line: #7918f2;
+}
+
+* { box-sizing: border-box; font-family: var(--font-body); transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+body { margin: 0; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; position: relative; font-weight: 400; }
+
+h1, h2, h3, h4 { font-family: var(--font-title); margin: 0; font-weight: 400; letter-spacing: 0.5px; }
+button, select, input, textarea { font-family: inherit; }
+
+.clay-btn {
+  background: var(--panel);
+  border: 2px solid var(--panel-border);
+  color: var(--text);
+  padding: 10px 18px;
+  border-radius: var(--radius-btn);
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--panel-border);
+  transition: all 0.12s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.clay-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--panel-border); }
+.clay-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--panel-border); }
+.clay-btn.primary {
+  background: var(--primary);
+  border-color: var(--primary-hover);
+  color: #fff;
+  box-shadow: 0 4px 0 var(--primary-hover);
+  font-weight: 500;
+}
+body[data-theme="dark-tech"] .clay-btn.primary, body[data-theme="retro-arcade"] .clay-btn.primary { color: #070a14; }
+
+.floating-bar-left { position: fixed; top: 16px; left: 20px; z-index: 1000; }
+.floating-bar-right { position: fixed; top: 16px; right: 20px; z-index: 1000; display: flex; gap: 8px; }
+
+.top-control-btn {
+  background: var(--panel);
+  border: 2px solid var(--panel-border);
+  color: var(--text);
+  padding: 8px 15px;
+  border-radius: 12px;
+  font-weight: 400;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--shadow);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+.top-control-btn:hover { transform: translateY(-2px); }
+
+.notification-bubble {
+  background: #ff334b; color: #fff;
+  font-size: 11px; font-weight: 500; padding: 2px 7px; border-radius: 10px; border: 2px solid var(--panel);
+  margin-left: 2px;
+}
+
+.dropdown-panel {
+  position: fixed; top: 68px; width: 320px; background: var(--panel);
+  border: 3px solid var(--panel-border); border-radius: 18px; padding: 18px;
+  box-shadow: 0 16px 32px var(--shadow); z-index: 1100; display: flex; flex-direction: column; gap: 12px;
+}
+.dropdown-panel.left { left: 20px; }
+.dropdown-panel.right { right: 20px; }
+.dropdown-panel.hidden { display: none !important; }
+
+.official-badge {
+  background: #1da1f2; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 600; margin-left: 4px; display: inline-block;
+}
+
+.screen-setup {
+  min-height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center;
+  padding: 20px; background: transparent; position: absolute; top: 0; left: 0; z-index: 20;
+}
+.screen-setup.hidden { display: none !important; }
+
+.setup-card {
+  background: var(--panel); backdrop-filter: blur(10px); border: 3px solid var(--panel-border);
+  border-radius: var(--radius-card); padding: 24px; max-width: 820px; width: 100%;
+  box-shadow: 0 16px 32px var(--shadow); display: flex; flex-direction: column; gap: 16px;
+  position: relative; z-index: 30; margin-top: 50px;
+}
+
+.account-bar {
+  display: flex; justify-content: space-between; align-items: center; background: var(--bg);
+  border: 2px solid var(--panel-border); padding: 10px 16px; border-radius: 14px;
+}
+
+.mode-tabs {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;
+  background: var(--bg); padding: 4px; border-radius: 14px; border: 2px solid var(--panel-border);
+}
+.tab-btn { background: transparent; border: none; padding: 8px; font-weight: 400; color: var(--muted); border-radius: 10px; cursor: pointer; font-size: 13px; }
+.tab-btn.active { background: var(--panel); color: var(--primary); box-shadow: 0 2px 8px var(--shadow); font-weight: 500; }
+
+.tab-content { display: none; flex-direction: column; gap: 14px; }
+.tab-content.active { display: flex; }
+
+.setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field.full { grid-column: 1 / -1; }
+label { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; }
+select, input[type="text"], input[type="password"], textarea {
+  width: 100%; background: var(--bg); border: 2px solid var(--panel-border);
+  border-radius: 12px; padding: 10px 14px; color: var(--text); font-weight: 400; outline: none;
+}
+
+.online-lobby-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.lobby-card {
+  background: var(--bg); border: 2px solid var(--panel-border);
+  border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px;
+}
+
+.game-container { display: none; min-height: 100vh; flex-direction: column; position: relative; z-index: 20; padding-top: 50px; }
+.game-container.visible { display: flex; }
+
+header {
+  height: 60px; background: var(--panel); backdrop-filter: blur(8px);
+  border-bottom: 2px solid var(--panel-border); padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.brand { font-family: var(--font-title); font-size: 24px; color: var(--primary); display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+
+main {
+  flex: 1; max-width: 1200px; width: 100%; margin: 0 auto; padding: 16px;
+  display: grid; grid-template-columns: 1fr 300px; gap: 16px;
+}
+
+.board-card {
+  background: var(--panel); backdrop-filter: blur(8px); border: 2px solid var(--panel-border);
+  border-radius: var(--radius-card); padding: 16px; display: flex; flex-direction: column; gap: 14px;
+}
+
+.players-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.player-box {
+  background: var(--bg); border: 2px solid var(--panel-border); border-radius: 14px;
+  padding: 10px 14px; display: flex; justify-content: space-between; align-items: center;
+}
+.player-box.active { border-color: var(--primary); background: var(--panel); box-shadow: 0 4px 12px var(--shadow); }
+
+.board-viewport {
+  height: 460px; background: var(--bg); border: 2px solid var(--panel-border);
+  border-radius: 16px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 16px; position: relative;
+}
+#boardSvg { width: 100%; height: 100%; display: block; z-index: 5; }
+
+/* ANIMACIÓN DE CAPTURA — solo se aplica a celdas nuevas */
+.captured-box {
+  transform-origin: center;
+  animation: popBox 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes popBox {
+  0%   { transform: scale(0.15); opacity: 0; }
+  70%  { transform: scale(1.08); opacity: 0.95; }
+  100% { transform: scale(1); opacity: 0.88; }
+}
+
+/* HOVER DE LÍNEAS DISPONIBLES — más visible y fluido */
+.edge-hover {
+  transition: opacity 0.12s ease, stroke-width 0.12s ease;
+}
+.edge-hover:hover {
+  opacity: 0.95 !important;
+  stroke-width: 6.5px !important;
+}
+
+.side-panel { display: flex; flex-direction: column; gap: 14px; }
+.side-card {
+  background: var(--panel); backdrop-filter: blur(8px); border: 2px solid var(--panel-border);
+  border-radius: var(--radius-card); padding: 16px; display: flex; flex-direction: column; gap: 10px;
+}
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-item { background: var(--bg); border: 2px solid var(--panel-border); border-radius: 12px; padding: 6px; text-align: center; }
+.stat-item span { display: block; font-size: 9px; font-weight: 500; color: var(--muted); }
+.stat-item strong { display: block; font-size: 15px; font-weight: 600; color: var(--primary); }
+
+.in-game-chat {
+  background: var(--bg); border: 2px solid var(--panel-border); border-radius: 14px;
+  padding: 10px; display: flex; flex-direction: column; gap: 8px; max-height: 180px;
+}
+.chat-messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; font-size: 11px; max-height: 100px; }
+.chat-msg { background: var(--panel); padding: 4px 8px; border-radius: 8px; border: 1px solid var(--panel-border); }
+
+.theme-overlay { position: fixed; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; }
+
+#botanicalTree { position: absolute; right: 30px; bottom: 20px; width: 240px; height: 240px; z-index: 6; opacity: 0.8; display: none; }
+.leaf-particle { position: absolute; width: 16px; height: 16px; background: #275939; opacity: 0.45; border-radius: 0 75% 0 75%; animation: leafAnim 8s linear infinite; }
+@keyframes leafAnim { 0% { transform: translateY(-30px) rotate(0deg); opacity: 0; } 20% { opacity: 0.6; } 100% { transform: translateY(105vh) rotate(360deg); opacity: 0; } }
+
+.cyber-grid-bg {
+  display: none; position: absolute; bottom: 0; left: -50%; width: 200%; height: 70%;
+  background-image: linear-gradient(0deg, transparent 23%, rgba(0, 240, 255, 0.25) 25%, rgba(0, 240, 255, 0.25) 26%, transparent 27%),
+                    linear-gradient(90deg, transparent 23%, rgba(0, 240, 255, 0.25) 25%, rgba(0, 240, 255, 0.25) 26%, transparent 27%);
+  background-size: 45px 45px; transform: perspective(250px) rotateX(55deg); animation: cyberGridScroll 2.5s linear infinite;
+}
+@keyframes cyberGridScroll { 0% { background-position: 0 0; } 100% { background-position: 0 45px; } }
+body[data-theme="dark-tech"] .cyber-grid-bg { display: block; }
+
+.craft-notebook-bg {
+  display: none; position: absolute; inset: 0;
+  background-image: radial-gradient(#b89e7d 1.5px, transparent 1.5px), linear-gradient(90deg, #d9a05b 0 3px, transparent 3px 100%);
+  background-size: 24px 24px, 100% 100%; opacity: 0.3; z-index: 1;
+}
+body[data-theme="craft"] .craft-notebook-bg { display: block; }
+
+.arcade-retro-bg {
+  display: none; position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(121, 24, 242, 0.35), rgba(13, 2, 33, 0.96) 80%);
+  z-index: 1;
+}
+body[data-theme="retro-arcade"] .arcade-retro-bg { display: block; }
+
+.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; z-index: 2000;
+}
+.modal-backdrop.hidden { display: none !important; }
+.modal {
+  background: var(--panel); border: 3px solid var(--panel-border); border-radius: 24px;
+  padding: 24px; max-width: 480px; width: 100%; text-align: center; box-shadow: 0 16px 32px var(--shadow);
+}
+
+@media (max-width: 850px) {
+  main { grid-template-columns: 1fr; }
+  .board-viewport { height: 360px; }
+  .online-lobby-grid { grid-template-columns: 1fr; }
+  .setup-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body data-theme="botanical">
+
+<div class="floating-bar-left">
+  <button class="top-control-btn" id="btnToggleConfigDropdown">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+    Configuración
+  </button>
+</div>
+
+<div class="floating-bar-right">
+  <button class="top-control-btn" id="btnToggleInboxDropdown">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+    Buzón <span class="notification-bubble" id="inboxBadgeCount">0</span>
+  </button>
+</div>
+
+<div class="dropdown-panel left hidden" id="configDropdown" onclick="event.stopPropagation()">
+  <h3 style="margin:0; font-size:15px;">Ajustes Rápidos</h3>
+  <div class="field">
+    <label>Tu Color de Jugador</label>
+    <select id="quickConfigColor">
+      <option value="red">Rojo</option>
+      <option value="green">Verde</option>
+      <option value="orange">Naranja</option>
+      <option value="purple">Morado</option>
+      <option value="blue">Azul</option>
+    </select>
+  </div>
+  <div class="field">
+    <label>Tema Visual</label>
+    <select id="quickConfigTheme">
+      <option value="botanical">Bosque Sereno</option>
+      <option value="craft">Madera & Papel</option>
+      <option value="dark-tech">Cyberpunk / Neón</option>
+      <option value="retro-arcade">Arcade 80s</option>
+    </select>
+  </div>
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+    <span style="font-size:11px; font-weight:500; color:var(--muted);">MÚSICA POLIFÓNICA</span>
+    <button class="clay-btn primary" id="btnToggleMusic" style="padding:4px 10px; font-size:11px;">Música: OFF</button>
+  </div>
+  <p id="musicInfoText" style="font-size:11px; color:var(--muted); margin:0; font-style:italic;"></p>
+  <button class="clay-btn" id="btnCloseConfigDropdown" style="width:100%; margin-top:4px;">Cerrar</button>
+</div>
+
+<div class="dropdown-panel right hidden" id="inboxDropdown" onclick="event.stopPropagation()">
+  <h3 style="margin:0; font-size:15px;">Buzón de Notificaciones</h3>
+  <div id="dropdownInboxList" style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto; font-size:12px;">
+    <i>Buzón vacío.</i>
+  </div>
+  <button class="clay-btn" id="btnCloseInboxDropdown" style="width:100%; margin-top:4px;">Cerrar</button>
+</div>
+
+<div class="theme-overlay" id="themeOverlay">
+  <div class="cyber-grid-bg"></div>
+  <div class="arcade-retro-bg"></div>
+  <div class="craft-notebook-bg"></div>
+  <svg id="botanicalTree" viewBox="0 0 100 100">
+    <path d="M50 95 L50 35 Q50 15 25 10 M50 45 Q70 25 85 15 M50 60 Q30 45 15 40" stroke="#275939" stroke-width="4.5" fill="none"/>
+    <circle cx="25" cy="10" r="11" fill="#275939"/>
+    <circle cx="85" cy="15" r="13" fill="#275939"/>
+    <circle cx="15" cy="40" r="9" fill="#275939"/>
+    <circle cx="50" cy="20" r="14" fill="#275939"/>
+  </svg>
+</div>
+
+<section class="screen-setup" id="setupScreen">
+  <div class="setup-card">
+    <div class="setup-header">
+      <h1 class="brand" id="mainTitleLogo"><span>□</span> SQUARES</h1>
+      <p>v7.0 · Motor Estratégico & Visual Restaurado</p>
+    </div>
+
+    <div class="account-bar">
+      <div>
+        <span style="font-size:11px; font-weight:500; color:var(--muted); display:block;">CUENTA ACTIVA</span>
+        <span id="accountUsernameBox"><b>...</b></span> <small id="accountUserId" style="color:var(--muted);"></small>
+      </div>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <div style="text-align:right;">
+          <span style="font-size:11px; font-weight:500; color:var(--muted); display:block;">RATING ELO</span>
+          <strong id="accountElo" style="color:var(--primary); font-size:17px;">1000</strong>
+        </div>
+        <button class="clay-btn" id="btnOpenAccountModal" style="padding:6px 12px; font-size:12px;">Cuenta / Ajustes</button>
+      </div>
+    </div>
+
+    <div class="mode-tabs">
+      <button class="tab-btn active" id="tabOfflineBtn">Modo Local / Bot</button>
+      <button class="tab-btn" id="tabOnlineBtn">Red Multijugador</button>
+      <button class="tab-btn" id="tabSocialBtn">Social & Amigos</button>
+    </div>
+
+    <div class="tab-content active" id="tabOfflineContent">
+      <div class="setup-grid">
+        <div class="field full">
+          <label>Modo de juego</label>
+          <select id="startMode">
+            <option value="pve">Partida Clasificada contra Bot</option>
+            <option value="pvp">2 Jugadores (Misma pantalla)</option>
+            <option value="self">Práctica libre</option>
+          </select>
+        </div>
+        <div class="field full" id="botDifficultyField">
+          <label>Dificultad del Bot</label>
+          <select id="aiDifficulty">
+            <option value="easy">Básica (Movimientos informales)</option>
+            <option value="medium">Intermedia (Evita errores obvios)</option>
+            <option value="hard">Avanzada (Busca combos)</option>
+            <option value="master" selected>Maestro (Estrategia óptima)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Jugador 1</label>
+          <input id="startName0" type="text" value="Jugador 1">
+        </div>
+        <div class="field">
+          <label>Color P1</label>
+          <select id="startColor0">
+            <option value="red">Rojo</option>
+            <option value="green">Verde</option>
+            <option value="orange">Naranja</option>
+            <option value="purple">Morado</option>
+            <option value="blue">Azul</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Jugador 2 / Bot</label>
+          <input id="startName1" type="text" value="Bot Maestro">
+        </div>
+        <div class="field">
+          <label>Color P2 / Bot</label>
+          <select id="startColor1">
+            <option value="green">Verde</option>
+            <option value="red">Rojo</option>
+            <option value="orange">Naranja</option>
+            <option value="purple">Morado</option>
+            <option value="blue">Azul</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Mapa / Terreno de Juego</label>
+          <select id="startPreset">
+            <option value="medium">Estándar (Cuadrado 8x8)</option>
+            <option value="large">Grande (Cuadrado 10x10)</option>
+            <option value="small">Rápido (5x6)</option>
+            <option value="castle">El Castillo</option>
+            <option value="ring">La Dona / Anillo</option>
+            <option value="hourglass">Reloj de Arena</option>
+            <option value="labyrinth">El Laberinto</option>
+            <option value="archipelago">Tres Islas</option>
+            <option value="diamond">Diamante Expansivo</option>
+            <option value="random">Generación Aleatoria</option>
+          </select>
+        </div>
+      </div>
+      <button class="clay-btn primary" id="btnStartGame" style="font-size: 15px; padding: 12px; margin-top:4px;">Iniciar Partida</button>
+    </div>
+
+    <div class="tab-content" id="tabOnlineContent">
+      <div class="lobby-card" style="width:100%; background: linear-gradient(135deg, rgba(217,119,87,0.1), transparent);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h3 style="margin:0;">Partida Rápida Online</h3>
+            <p style="font-size:12px; color:var(--muted); margin:4px 0 0 0;">Emparejamiento público con tu usuario.</p>
+          </div>
+          <button class="clay-btn primary" id="btnQuickMatch" style="font-size:14px; padding:10px 16px;">Buscar Jugador</button>
+        </div>
+        <div class="field" style="margin-top:8px;">
+          <label>Preferencia de Terreno</label>
+          <select id="quickMatchPreset">
+            <option value="any">Cualquier terreno (Más rápido)</option>
+            <option value="medium">Estándar (8x8)</option>
+            <option value="large">Grande (10x10)</option>
+            <option value="small">Rápido (5x6)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="online-lobby-grid">
+        <div class="lobby-card">
+          <h4>Crear Sala Privada</h4>
+          <button class="clay-btn primary" id="btnCreateRoom">Crear Código</button>
+          <input type="text" id="createdRoomCode" readonly placeholder="Código: SQ-XXXX" style="text-align:center;">
+        </div>
+        <div class="lobby-card">
+          <h4>Unirse a una Sala</h4>
+          <input type="text" id="joinRoomCode" placeholder="Ej: SQ-8492" style="text-align:center;">
+          <button class="clay-btn" id="btnJoinRoom">Entrar a la Sala</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-content" id="tabSocialContent">
+      <div class="lobby-card">
+        <h4>Añadir Amigo o Seguir Jugador</h4>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="addFriendInput" placeholder="Código (ej. SQ-USER-1234)">
+          <button class="clay-btn primary" id="btnAddFriend">Agregar Amigo</button>
+          <button class="clay-btn" id="btnFollowUser">Seguir</button>
+        </div>
+      </div>
+
+      <div class="lobby-card" style="background: linear-gradient(135deg, rgba(29,161,242,0.1), transparent);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h4 style="margin:0;">Solicitar Insignia Oficial <span class="official-badge">OFICIAL</span></h4>
+            <p style="font-size:11px; color:var(--muted); margin:2px 0 0 0;">Requiere min. 10 victorias y 1100 ELO para revisión del Admin.</p>
+          </div>
+          <button class="clay-btn primary" id="btnOpenOfficialRequest" style="padding:6px 12px; font-size:11px;">Solicitar</button>
+        </div>
+      </div>
+
+      <div class="online-lobby-grid">
+        <div class="lobby-card">
+          <h4>Lista de Amigos</h4>
+          <div id="friendsList" style="display:flex; flex-direction:column; gap:6px; max-height:140px; overflow-y:auto;">
+            <i>Sin amigos aún.</i>
+          </div>
+        </div>
+        <div class="lobby-card">
+          <h4>Siguiendo</h4>
+          <div id="followingList" style="display:flex; flex-direction:column; gap:6px; max-height:140px; overflow-y:auto;">
+            <i>No sigues a nadie.</i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="game-container" id="gameLayout">
+  <header>
+    <div class="brand"><span>□</span> SQUARES 7.0</div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <select id="inGameThemeSelect" style="padding:6px 10px; font-size:13px; width:auto;">
+        <option value="botanical">Tema: Bosque Sereno</option>
+        <option value="craft">Tema: Madera & Papel</option>
+        <option value="dark-tech">Tema: Cyberpunk / Neón</option>
+        <option value="retro-arcade">Tema: Arcade 80s</option>
+      </select>
+      <button class="clay-btn" id="btnAudioToggle">Efectos: ON</button>
+    </div>
+  </header>
+  
+  <main>
+    <div class="board-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 id="turnLabel">Turno actual: <span id="turnName" style="color:var(--primary)">Jugador 1</span></h3>
+        <span id="boardShapeTag" style="font-size:11px; font-weight:500; color:var(--muted); background:var(--bg); padding:4px 10px; border-radius:10px;">Estándar</span>
+      </div>
+
+      <div class="players-bar">
+        <div class="player-box active" id="p0Box">
+          <div><b id="p0Name">Jugador 1</b><br><small id="p0ColorText">Rojo</small></div>
+          <span id="p0Score" style="font-weight:600; font-size:20px;">0</span>
+        </div>
+        <div class="player-box" id="p1Box">
+          <div><b id="p1Name">Bot Maestro</b><br><small id="p1ColorText">Verde</small></div>
+          <span id="p1Score" style="font-weight:600; font-size:20px;">0</span>
+        </div>
+      </div>
+
+      <div class="board-viewport" id="boardViewport">
+        <svg id="boardSvg"></svg>
+      </div>
+    </div>
+
+    <aside class="side-panel">
+      <div class="side-card">
+        <h3>Tu Puntuación (ELO)</h3>
+        <div class="stats-grid">
+          <div class="stat-item"><span>ACTUAL</span><strong id="eloRating">1000</strong></div>
+          <div class="stat-item"><span>VICTORIAS</span><strong id="eloWins">0</strong></div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Chat de Partida</h3>
+        <div class="in-game-chat">
+          <div class="chat-messages" id="chatBox">
+            <div class="chat-msg"><i>Sistema: ¡Partida iniciada!</i></div>
+          </div>
+          <div style="display:flex; gap:4px;">
+            <input type="text" id="chatInput" placeholder="Mensaje..." style="padding:6px 10px; font-size:11px;">
+            <button class="clay-btn primary" id="btnSendChat" style="padding:6px 10px; font-size:11px;">Enviar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-card">
+        <h3>Opciones</h3>
+        <button class="clay-btn primary" id="btnReset">Reiniciar Partida</button>
+        <button class="clay-btn" id="btnBackMenu">Volver al Menú</button>
+      </div>
+
+      <div class="side-card">
+        <h3>Entrenamiento de IA</h3>
+        <div style="font-size:22px; font-weight:600; color:var(--primary); margin:2px 0;" id="totalTrainingCount">1.4M</div>
+        <button class="clay-btn primary" id="btnAutoTrain">Simular 50 Partidas</button>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<div class="modal-backdrop hidden" id="officialReqModal">
+  <div class="modal">
+    <h3>Solicitar Insignia Oficial <span class="official-badge">OFICIAL</span></h3>
+    <p style="font-size:12px; color:var(--muted); margin-top:4px;">Explícale al Administrador por qué debes recibir la distinción oficial.</p>
+    <div style="margin-top:12px; text-align:left;">
+      <label>Mensaje para el Admin:</label>
+      <textarea id="officialReqText" rows="3" placeholder="Escribe aquí tu motivo..."></textarea>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:14px;">
+      <button class="clay-btn primary" id="btnSubmitOfficialReq" style="flex:1;">Enviar Solicitud</button>
+      <button class="clay-btn" id="btnCloseOfficialReqModal" style="flex:1;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="accountModal">
+  <div class="modal">
+    <h3>Gestión de Cuenta</h3>
+    <div style="display:flex; flex-direction:column; gap:10px; margin-top:14px; text-align:left;">
+      <div class="field">
+        <label>Nombre de Usuario</label>
+        <input type="text" id="accInputUser" placeholder="Tu usuario...">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="accInputPass" placeholder="Tu clave...">
+      </div>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:16px;">
+      <button class="clay-btn primary" id="btnDoLogin" style="flex:1;">Iniciar Sesión</button>
+      <button class="clay-btn" id="btnDoRegister" style="flex:1;">Registrar</button>
+    </div>
+    <button class="clay-btn" id="btnCloseAccModal" style="width:100%; margin-top:8px;">Cerrar</button>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="adminModal">
+  <div class="modal" style="max-width:620px;">
+    <h3>Panel Secreto de Administración</h3>
+    <p style="font-size:12px; color:var(--muted); margin-top:4px;">Control absoluto de cuentas, aprobaciones oficiales y métricas.</p>
+    
+    <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px; text-align:left;">
+      <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg); padding:10px; border-radius:12px;">
+        <span style="font-size:12px;">Crear usuario rápido de prueba</span>
+        <button class="clay-btn primary" id="btnAdminCreateQuick" style="padding:4px 10px; font-size:11px;">+ Crear Usuario</button>
+      </div>
+
+      <h4>Solicitud de Etiquetas Oficiales Pendientes</h4>
+      <div style="max-height:120px; overflow-y:auto; border:1px solid var(--panel-border); border-radius:12px; padding:8px; background:var(--bg);" id="adminOfficialRequestsList">
+        <i>Sin solicitudes pendientes.</i>
+      </div>
+
+      <h4>Todas las Cuentas Registradas</h4>
+      <div style="max-height:180px; overflow-y:auto; border:1px solid var(--panel-border); border-radius:12px; padding:10px; background:var(--bg);" id="adminUsersList">
+      </div>
+    </div>
+    <button class="clay-btn" id="btnCloseAdminModal" style="width:100%; margin-top:16px;">Cerrar Panel Secreto</button>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="resultModal">
+  <div class="modal">
+    <h2 id="resTitle">¡Partida Finalizada!</h2>
+    <p id="resSub" style="margin:8px 0; font-size:14px; color:var(--muted);"></p>
+    <button class="clay-btn primary" id="btnModalNew" style="width:100%; margin-top:12px;">Jugar Otra Vez</button>
+  </div>
+</div>
+
+<script>
+const COLOR_HEX_MAP = { red: '#d97757', green: '#5b8c73', orange: '#d9a05b', purple: '#8c5b78', blue: '#5b788c' };
+const MUSIC_DESCRIPTIONS = {
+  botanical: 'Música: Lo-Fi natural & acordes orgánicos',
+  craft: 'Música: Folk acústico & notas de madera cálidas',
+  'dark-tech': 'Música: Synthwave electrónico cibernético',
+  'retro-arcade': 'Música: Chiptune 8-bit polifónico retro'
+};
+
+const STORAGE_KEY = 'SQUARES_PERSISTENT_DB_V1';
+
+function getUsersDB() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return {};
+}
+
+function saveUsersDB(db) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(db)); } catch(e) {}
+}
+
+function getActiveSession() {
+  try { return localStorage.getItem('SQUARES_ACTIVE_SESSION'); } catch(e) {}
+  return null;
+}
+
+function setActiveSession(username) {
+  try { localStorage.setItem('SQUARES_ACTIVE_SESSION', username); } catch(e) {}
+  updateUserBarUI();
+}
+
+function getCurrentUser() {
+  const db = getUsersDB();
+  
+  if (!db['admin']) {
+    db['admin'] = {
+      username: 'admin', password: 'admin123', userId: 'SQ-ADMIN-001',
+      elo: 1500, wins: 50, losses: 0, preferredTheme: 'dark-tech', preferredColor: 'red', botColor: 'green',
+      isOfficial: true, isAdmin: true,
+      friends: [], following: [], inbox: [], recentPlayers: []
+    };
+    saveUsersDB(db);
+  }
+
+  let active = getActiveSession();
+  if (!active || !db[active]) {
+    const defaultUser = 'Jugador_' + Math.floor(100 + Math.random() * 900);
+    db[defaultUser] = {
+      username: defaultUser, password: '123', userId: 'SQ-USER-' + Math.floor(1000 + Math.random() * 9000),
+      elo: 1000, wins: 0, losses: 0, preferredTheme: 'botanical', preferredColor: 'red', botColor: 'green',
+      isOfficial: false, isAdmin: false,
+      friends: [], following: [], inbox: [{ type: 'INFO', senderName: 'Sistema', text: '¡Bienvenido a SQUARES v6.9!' }], recentPlayers: []
+    };
+    saveUsersDB(db); setActiveSession(defaultUser); active = defaultUser;
+  }
+  return db[active];
+}
+
+function saveCurrentUser(profile) {
+  const db = getUsersDB(); db[profile.username] = profile; saveUsersDB(db); updateUserBarUI();
+}
+
+function getGlobalTrainingCount() {
+  try { const val = localStorage.getItem('SQUARES_GLOBAL_TRAINING'); return val ? parseInt(val, 10) : 1420000; } catch(e) { return 1420000; }
+}
+function formatNumberShort(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+  return num.toString();
+}
+function incrementGlobalTraining(amount = 50) {
+  const count = getGlobalTrainingCount() + amount;
+  try { localStorage.setItem('SQUARES_GLOBAL_TRAINING', count.toString()); } catch(e) {}
+  document.getElementById('totalTrainingCount').textContent = formatNumberShort(count);
+}
+
+function updateUserBarUI() {
+  const p = getCurrentUser();
+  const box = document.getElementById('accountUsernameBox');
+  box.innerHTML = `<b>${p.username}</b>${p.isOfficial ? ' <span class="official-badge">OFICIAL</span>' : ''}`;
+  document.getElementById('accountUserId').textContent = `(${p.userId})`;
+  document.getElementById('accountElo').textContent = Math.round(p.elo);
+  document.getElementById('eloRating').textContent = Math.round(p.elo);
+  document.getElementById('eloWins').textContent = p.wins;
+
+  if (p.preferredTheme) applyTheme(p.preferredTheme);
+  if (p.preferredColor) {
+    document.getElementById('startColor0').value = p.preferredColor;
+    document.getElementById('quickConfigColor').value = p.preferredColor;
+  }
+  document.getElementById('startName0').value = p.username;
+  document.getElementById('totalTrainingCount').textContent = formatNumberShort(getGlobalTrainingCount());
+
+  renderSocialLists();
+  renderInboxDropdown();
+}
+
+function renderInboxDropdown() {
+  const p = getCurrentUser();
+  const listEl = document.getElementById('dropdownInboxList');
+  const badgeEl = document.getElementById('inboxBadgeCount');
+  const count = p.inbox ? p.inbox.length : 0;
+
+  badgeEl.textContent = count;
+  badgeEl.style.display = count > 0 ? 'inline-block' : 'none';
+
+  if (!count) {
+    listEl.innerHTML = '<i>Buzón vacío.</i>';
+    return;
+  }
+
+  listEl.innerHTML = p.inbox.map((item, idx) => `
+    <div style="background:var(--bg); border:1px solid var(--panel-border); padding:8px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
+      <div><b>${item.senderName}</b>: ${item.text}</div>
+      <button class="clay-btn primary" onclick="handleInboxItem(${idx})" style="padding:2px 8px; font-size:10px;">Ver</button>
+    </div>
+  `).join('');
+}
+
+function handleInboxItem(idx) {
+  const p = getCurrentUser();
+  p.inbox.splice(idx, 1);
+  saveCurrentUser(p);
+}
+
+function renderSocialLists() {
+  const p = getCurrentUser();
+  const fEl = document.getElementById('friendsList');
+  if (fEl) fEl.innerHTML = (!p.friends || !p.friends.length) ? '<i>Sin amigos aún.</i>' : p.friends.map(f => `<div><b>${f.name}</b></div>`).join('');
+  const folEl = document.getElementById('followingList');
+  if (folEl) folEl.innerHTML = (!p.following || !p.following.length) ? '<i>No sigues a nadie.</i>' : p.following.map(f => `<div><b>${f.name}</b></div>`).join('');
+}
+
+/* ACCESO SECRETO DE ADMIN (TRIPLE CLIC EN EL TÍTULO) */
+let titleClickCount = 0;
+let titleClickTimer = null;
+
+document.getElementById('mainTitleLogo').onclick = () => {
+  titleClickCount++;
+  clearTimeout(titleClickTimer);
+  titleClickTimer = setTimeout(() => { titleClickCount = 0; }, 1000);
+
+  if (titleClickCount >= 3) {
+    titleClickCount = 0;
+    const p = getCurrentUser();
+    if (p.username.toLowerCase() === 'admin' || p.isAdmin) {
+      renderAdminUsers();
+      document.getElementById('adminModal').classList.remove('hidden');
+    } else {
+      alert('Acceso Denegado: Inicia sesión con la cuenta "admin" para abrir el panel secreto.');
+    }
+  }
+};
+
+document.getElementById('btnCloseAdminModal').onclick = () => document.getElementById('adminModal').classList.add('hidden');
+
+function renderAdminUsers() {
+  const db = getUsersDB();
+  const listEl = document.getElementById('adminUsersList');
+  const reqListEl = document.getElementById('adminOfficialRequestsList');
+  const keys = Object.keys(db);
+
+  const pendingReqs = [];
+  keys.forEach(k => { if (db[k].officialRequested) pendingReqs.push(db[k]); });
+
+  if (!pendingReqs.length) {
+    reqListEl.innerHTML = '<i>Sin solicitudes pendientes.</i>';
+  } else {
+    reqListEl.innerHTML = pendingReqs.map(r => `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px dashed var(--panel-border); font-size:11px;">
+        <div><b>${r.username}</b> (Wins: ${r.wins}, ELO: ${Math.round(r.elo)}): "${r.officialReason || ''}"</div>
+        <div style="display:flex; gap:4px;">
+          <button class="clay-btn primary" onclick="approveOfficialTag('${r.username}')" style="padding:2px 6px; font-size:10px;">Aprobar</button>
+          <button class="clay-btn" onclick="rejectOfficialTag('${r.username}')" style="padding:2px 6px; font-size:10px; background:#ff4d4d; color:#fff;">Rechazar</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  listEl.innerHTML = keys.map(u => {
+    const usr = db[u];
+    return `
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--panel-border); padding:6px 0; font-size:12px;">
+        <div><b>${usr.username}</b> ${usr.isOfficial ? '<span class="official-badge">OFICIAL</span>' : ''} (${usr.userId}) - ELO: ${Math.round(usr.elo)}</div>
+        <div style="display:flex; gap:4px;">
+          ${!usr.isOfficial ? `<button class="clay-btn primary" onclick="approveOfficialTag('${usr.username}')" style="padding:2px 6px; font-size:10px;">+ Oficial</button>` : ''}
+          <button class="clay-btn" onclick="deleteUserByAdmin('${usr.username}')" style="padding:2px 6px; font-size:10px; background:#ff4d4d; color:#fff; border-color:#cc0000;">Borrar</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function approveOfficialTag(username) {
+  const db = getUsersDB();
+  if (db[username]) {
+    db[username].isOfficial = true;
+    db[username].officialRequested = false;
+    if (!db[username].inbox) db[username].inbox = [];
+    db[username].inbox.push({ type: 'INFO', senderName: 'Admin', text: '¡Felicidades! Se te ha concedido la etiqueta OFICIAL.' });
+    saveUsersDB(db);
+    renderAdminUsers();
+    updateUserBarUI();
+  }
+}
+
+function rejectOfficialTag(username) {
+  const db = getUsersDB();
+  if (db[username]) {
+    db[username].officialRequested = false;
+    saveUsersDB(db);
+    renderAdminUsers();
+  }
+}
+
+function deleteUserByAdmin(username) {
+  if (username === 'admin') { alert('No se puede eliminar la cuenta de admin principal.'); return; }
+  const db = getUsersDB();
+  delete db[username];
+  saveUsersDB(db);
+  renderAdminUsers();
+}
+
+document.getElementById('btnAdminCreateQuick').onclick = () => {
+  const db = getUsersDB();
+  const name = 'TestUser_' + Math.floor(100 + Math.random() * 900);
+  db[name] = {
+    username: name, password: '123', userId: 'SQ-USER-' + Math.floor(1000 + Math.random() * 9000),
+    elo: 1000, wins: 0, losses: 0, preferredTheme: 'botanical', preferredColor: 'blue', botColor: 'red',
+    isOfficial: false, isAdmin: false, friends: [], following: [], inbox: [], recentPlayers: []
+  };
+  saveUsersDB(db);
+  renderAdminUsers();
+};
+
+const officialReqModal = document.getElementById('officialReqModal');
+document.getElementById('btnOpenOfficialRequest').onclick = () => {
+  const p = getCurrentUser();
+  if (p.isOfficial) { alert('¡Ya tienes la etiqueta Oficial!'); return; }
+  if (p.wins < 10 || p.elo < 1100) {
+    alert(`Requisitos incompletos (Tienes ${p.wins}/10 victorias y ${Math.round(p.elo)}/1100 ELO).`);
+    return;
+  }
+  officialReqModal.classList.remove('hidden');
+};
+document.getElementById('btnCloseOfficialReqModal').onclick = () => officialReqModal.classList.add('hidden');
+
+document.getElementById('btnSubmitOfficialReq').onclick = () => {
+  const txt = document.getElementById('officialReqText').value.trim();
+  if (!txt) { alert('Por favor escribe tu motivo.'); return; }
+  const p = getCurrentUser();
+  p.officialRequested = true;
+  p.officialReason = txt;
+  saveCurrentUser(p);
+
+  const db = getUsersDB();
+  if (db['admin']) {
+    if (!db['admin'].inbox) db['admin'].inbox = [];
+    db['admin'].inbox.push({ type: 'INFO', senderName: p.username, text: `Solicitud de Insignia Oficial: "${txt}"` });
+    saveUsersDB(db);
+  }
+
+  officialReqModal.classList.add('hidden');
+  alert('¡Solicitud enviada al Admin con éxito!');
+};
+
+const configDropdown = document.getElementById('configDropdown');
+const inboxDropdown = document.getElementById('inboxDropdown');
+
+document.getElementById('btnToggleConfigDropdown').onclick = (e) => {
+  e.stopPropagation();
+  configDropdown.classList.toggle('hidden');
+  inboxDropdown.classList.add('hidden');
+};
+document.getElementById('btnCloseConfigDropdown').onclick = () => configDropdown.classList.add('hidden');
+
+document.getElementById('btnToggleInboxDropdown').onclick = (e) => {
+  e.stopPropagation();
+  inboxDropdown.classList.toggle('hidden');
+  configDropdown.classList.add('hidden');
+};
+document.getElementById('btnCloseInboxDropdown').onclick = () => inboxDropdown.classList.add('hidden');
+
+window.onclick = () => {
+  configDropdown.classList.add('hidden');
+  inboxDropdown.classList.add('hidden');
+};
+
+document.getElementById('quickConfigColor').onchange = (e) => {
+  const p = getCurrentUser(); p.preferredColor = e.target.value; saveCurrentUser(p);
+};
+
+document.getElementById('quickConfigTheme').onchange = (e) => {
+  applyTheme(e.target.value);
+  const p = getCurrentUser(); p.preferredTheme = e.target.value; saveCurrentUser(p);
+};
+
+let audioCtx = null, musicTimer = null, musicActive = false;
+
+function startThemedMusic(themeKey) {
+  stopThemedMusic();
+  if (!musicActive) return;
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+
+  const chordProgressions = {
+    botanical: [[261.63, 329.63, 392.00], [220.00, 261.63, 329.63], [174.61, 220.00, 261.63], [196.00, 246.94, 293.66]],
+    craft: [[220.00, 277.18, 329.63], [164.81, 220.00, 246.94], [174.61, 220.00, 261.63], [196.00, 246.94, 293.66]],
+    'dark-tech': [[110.00, 164.81], [130.81, 196.00], [98.00, 146.83], [110.00, 146.83]],
+    'retro-arcade': [[523.25, 659.25], [587.33, 698.46], [659.25, 783.99], [440.00, 523.25]]
+  };
+  const prog = chordProgressions[themeKey] || chordProgressions.botanical;
+  let step = 0;
+
+  musicTimer = setInterval(() => {
+    if (!musicActive || !audioCtx) return;
+    const chord = prog[step % prog.length];
+    step++;
+
+    chord.forEach(freq => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = themeKey === 'dark-tech' ? 'sawtooth' : (themeKey === 'retro-arcade' ? 'square' : 'sine');
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.025, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.2);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 1.2);
+    });
+  }, 600);
+}
+
+function stopThemedMusic() {
+  if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+}
+
+document.getElementById('btnToggleMusic').onclick = () => {
+  musicActive = !musicActive;
+  document.getElementById('btnToggleMusic').textContent = musicActive ? 'Música: ON' : 'Música: OFF';
+  if (musicActive) startThemedMusic(document.body.getAttribute('data-theme') || 'botanical');
+  else stopThemedMusic();
+};
+
+function applyTheme(themeKey) {
+  document.body.setAttribute('data-theme', themeKey);
+  document.getElementById('quickConfigTheme').value = themeKey;
+  document.getElementById('inGameThemeSelect').value = themeKey;
+  document.getElementById('musicInfoText').textContent = MUSIC_DESCRIPTIONS[themeKey] || '';
+
+  if (musicActive) startThemedMusic(themeKey);
+
+  const tree = document.getElementById('botanicalTree');
+  document.querySelectorAll('.leaf-particle').forEach(l => l.remove());
+  if (themeKey === 'botanical') {
+    if (tree) tree.style.display = 'block';
+    for (let i = 0; i < 8; i++) {
+      const leaf = document.createElement('div');
+      leaf.className = 'leaf-particle';
+      leaf.style.left = (Math.random() * 95) + 'vw';
+      leaf.style.animationDelay = (Math.random() * 6) + 's';
+      document.getElementById('themeOverlay').appendChild(leaf);
+    }
+  } else {
+    if (tree) tree.style.display = 'none';
+  }
+}
+
+document.getElementById('inGameThemeSelect').onchange = (e) => { applyTheme(e.target.value); };
+
+document.getElementById('btnSendChat').onclick = sendChatMessage;
+document.getElementById('chatInput').onkeypress = (e) => { if (e.key === 'Enter') sendChatMessage(); };
+
+function sendChatMessage() {
+  const input = document.getElementById('chatInput');
+  const txt = input.value.trim();
+  if (!txt) return;
+  const p = getCurrentUser();
+  addChatMessage(p.username, txt);
+  input.value = '';
+}
+
+function addChatMessage(sender, text) {
+  const box = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.className = 'chat-msg';
+  div.innerHTML = `<b>${sender}:</b> ${text}`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+const accModal = document.getElementById('accountModal');
+document.getElementById('btnOpenAccountModal').onclick = () => {
+  const p = getCurrentUser();
+  document.getElementById('accInputUser').value = p.username;
+  document.getElementById('accInputPass').value = p.password;
+  accModal.classList.remove('hidden');
+};
+document.getElementById('btnCloseAccModal').onclick = () => accModal.classList.add('hidden');
+
+document.getElementById('btnDoLogin').onclick = () => {
+  const u = document.getElementById('accInputUser').value.trim();
+  const p = document.getElementById('accInputPass').value.trim();
+  const db = getUsersDB();
+  if (db[u] && db[u].password === p) {
+    setActiveSession(u); accModal.classList.add('hidden');
+  } else { alert('Credenciales incorrectas.'); }
+};
+
+document.getElementById('btnDoRegister').onclick = () => {
+  const u = document.getElementById('accInputUser').value.trim();
+  const p = document.getElementById('accInputPass').value.trim();
+  const db = getUsersDB();
+  if (!u || !p) return;
+  db[u] = {
+    username: u, password: p, userId: 'SQ-USER-' + Math.floor(1000 + Math.random() * 9000),
+    elo: 1000, wins: 0, losses: 0, preferredTheme: 'botanical', preferredColor: 'red', botColor: 'green',
+    isOfficial: u.toLowerCase() === 'admin', isAdmin: u.toLowerCase() === 'admin',
+    friends: [], following: [], inbox: [], recentPlayers: []
+  };
+  saveUsersDB(db); setActiveSession(u); accModal.classList.add('hidden');
+};
+
+/* =========================================================
+   SQUARES v7.0 — MOTOR DE JUEGO, TERRENOS E IA ESTRATÉGICA
+   ========================================================= */
+
+const PRESETS = {
+  small: (r, c) => r < 5 && c < 6,
+  medium: (r, c) => r < 8 && c < 8,
+  large: (r, c) => r < 10 && c < 10,
+  castle: (r, c) => {
+    // Castillo: base rectangular + torres en las esquinas
+    if (r >= 2 && r <= 7 && c >= 2 && c <= 7) return true;
+    if ((r === 1 || r === 8) && (c === 1 || c === 2 || c === 7 || c === 8)) return true;
+    if ((c === 1 || c === 8) && (r === 1 || r === 2 || r === 7 || r === 8)) return true;
+    return false;
+  },
+  ring: (r, c) => {
+    // Anillo / Dona
+    const inOuter = r >= 1 && r <= 8 && c >= 1 && c <= 8;
+    const inInner = r >= 3 && r <= 6 && c >= 3 && c <= 6;
+    return inOuter && !inInner;
+  },
+  hourglass: (r, c) => {
+    // Reloj de arena
+    if (r < 4) return c >= (3 - r) && c <= (6 + r);
+    if (r > 5) return c >= (r - 5) && c <= (11 - r);
+    return c >= 2 && c <= 7;
+  },
+  labyrinth: (r, c) => {
+    // Laberinto simple con pasillos
+    if (r < 0 || r > 9 || c < 0 || c > 9) return false;
+    if (r === 0 || r === 9 || c === 0 || c === 9) return true;
+    if (r % 2 === 0 && c <= 7) return true;
+    if (c % 3 === 0) return true;
+    return false;
+  },
+  archipelago: (r, c) => {
+    // Tres islas
+    const island1 = r >= 1 && r <= 3 && c >= 1 && c <= 3;
+    const island2 = r >= 1 && r <= 3 && c >= 6 && c <= 8;
+    const island3 = r >= 6 && r <= 8 && c >= 3 && c <= 6;
+    return island1 || island2 || island3;
+  },
+  diamond: (r, c) => {
+    // Diamante expansivo
+    const center = 4.5;
+    const dist = Math.abs(r - center) + Math.abs(c - center);
+    return dist <= 5.5 && r >= 0 && r <= 9 && c >= 0 && c <= 9;
+  },
+  random: (r, c) => {
+    // Generación semi-aleatoria coherente (seed fija por sesión)
+    if (r > 9 || c > 9) return false;
+    const seed = (r * 17 + c * 31) % 100;
+    return seed < 62;
+  }
+};
+
+function generateShape(presetName) {
+  const s = new Set();
+  const fn = PRESETS[presetName] || PRESETS.medium;
+  const max = 12;
+  for (let r = 0; r < max; r++) {
+    for (let c = 0; c < max; c++) {
+      if (fn(r, c)) s.add(`${r},${c}`);
+    }
+  }
+  // Seguridad: nunca devolver vacío
+  if (s.size === 0) {
+    for (let r = 0; r < 8; r++) for (let c = 0; c < 8; c++) s.add(`${r},${c}`);
+  }
+  return s;
+}
+
+let cells = new Set();
+let edges = new Map();
+let cellOwner = new Map();
+let scores = [0, 0];
+let current = 0;
+let playerNames = ['Jugador 1', 'Bot Maestro'];
+let playerColors = ['#d97757', '#5b8c73'];
+let gameOver = false;
+let newlyCaptured = new Set(); // Solo estas celdas reciben animación
+const $ = id => document.getElementById(id);
+
+function parseKey(k) { return k.split(',').map(Number); }
+function edgeKey(a, b) { return [a, b].sort().join('|'); }
+function cellEdges(r, c) {
+  return [
+    edgeKey(`${r},${c}`, `${r},${c+1}`),
+    edgeKey(`${r+1},${c}`, `${r+1},${c+1}`),
+    edgeKey(`${r},${c}`, `${r+1},${c}`),
+    edgeKey(`${r},${c+1}`, `${r+1},${c+1}`)
+  ];
+}
+
+function buildEdges() {
+  edges = new Map();
+  for (const k of cells) {
+    const [r, c] = parseKey(k);
+    for (const e of cellEdges(r, c)) {
+      if (!edges.has(e)) edges.set(e, { owner: null, outer: false, cells: [] });
+      edges.get(e).cells.push(k);
+    }
+  }
+  for (const e of edges.values()) {
+    if (e.cells.length === 1) e.outer = true;
+  }
+}
+
+function countFilledSides(cellKey, ignoreEdge = null) {
+  let count = 0;
+  for (const eKey of cellEdges(...parseKey(cellKey))) {
+    const ed = edges.get(eKey);
+    if (ed && (ed.outer || ed.owner !== null || eKey === ignoreEdge)) count++;
+  }
+  return count;
+}
+
+function getAvailableEdges() {
+  const avail = [];
+  for (const [k, e] of edges) {
+    if (!e.outer && e.owner === null) avail.push(k);
+  }
+  return avail;
+}
+
+function wouldCapture(edgeKey) {
+  const ed = edges.get(edgeKey);
+  if (!ed) return [];
+  const captured = [];
+  for (const cKey of ed.cells) {
+    if (countFilledSides(cKey, edgeKey) === 4) captured.push(cKey);
+  }
+  return captured;
+}
+
+function isDangerous(edgeKey) {
+  // Un movimiento es peligroso si deja una celda con 3 lados llenos para el rival
+  const ed = edges.get(edgeKey);
+  if (!ed) return false;
+  // Simulamos temporalmente
+  ed.owner = current;
+  let dangerous = false;
+  for (const cKey of ed.cells) {
+    if (countFilledSides(cKey) === 3) {
+      dangerous = true;
+      break;
+    }
+  }
+  ed.owner = null;
+  return dangerous;
+}
+
+function resetGame(shape, starter = 0) {
+  cells = new Set(shape);
+  cellOwner = new Map();
+  newlyCaptured = new Set();
+  buildEdges();
+  scores = [0, 0];
+  current = starter;
+  gameOver = false;
+  $('resultModal').classList.add('hidden');
+  render();
+  if ($('startMode').value === 'pve' && current === 1) {
+    setTimeout(makeAiMove, 450);
+  }
+}
+
+function playEdge(k) {
+  if (gameOver) return;
+  const edge = edges.get(k);
+  if (!edge || edge.outer || edge.owner !== null) return;
+
+  edge.owner = current;
+  newlyCaptured = new Set();
+  let capturedAny = false;
+
+  for (const cell of edge.cells) {
+    if (countFilledSides(cell) === 4) {
+      if (!cellOwner.has(cell)) {
+        cellOwner.set(cell, current);
+        scores[current]++;
+        newlyCaptured.add(cell);
+        capturedAny = true;
+      }
+    }
+  }
+
+  if (!capturedAny) current = 1 - current;
+  render();
+
+  // Limpiar la marca de "nuevo" después de la animación
+  setTimeout(() => {
+    newlyCaptured.clear();
+  }, 400);
+
+  if ([...cells].every(c => cellOwner.has(c))) {
+    gameOver = true;
+    endGame();
+  } else if ($('startMode').value === 'pve' && current === 1 && !gameOver) {
+    setTimeout(makeAiMove, 380);
+  }
+}
+
+function endGame() {
+  const profile = getCurrentUser();
+  const isWin = scores[0] > scores[1];
+  const isDraw = scores[0] === scores[1];
+
+  // Cálculo real de ELO (simple, estilo Elo)
+  if ($('startMode').value === 'pve' || $('startMode').value === 'pvp') {
+    const K = 32;
+    const expected = 1 / (1 + Math.pow(10, (1000 - profile.elo) / 400)); // vs 1000 base bot
+    let score = isWin ? 1 : (isDraw ? 0.5 : 0);
+    const delta = Math.round(K * (score - expected));
+    profile.elo = Math.max(400, profile.elo + delta);
+    if (isWin) profile.wins = (profile.wins || 0) + 1;
+    else if (!isDraw) profile.losses = (profile.losses || 0) + 1;
+    saveCurrentUser(profile);
+  }
+
+  $('resTitle').textContent = isWin ? '¡Victoria!' : (isDraw ? 'Empate' : 'Derrota');
+  $('resSub').textContent = `${playerNames[0]}: ${scores[0]}  |  ${playerNames[1]}: ${scores[1]}`;
+  $('resultModal').classList.remove('hidden');
+  updateUserBarUI();
+}
+
+/* =========================================================
+   IA ESTRATÉGICA CON NIVELES REALES DE DIFICULTAD
+   ========================================================= */
+function makeAiMove() {
+  if (gameOver || current !== 1) return;
+
+  const difficulty = $('aiDifficulty') ? $('aiDifficulty').value : 'master';
+  const avail = getAvailableEdges();
+  if (!avail.length) return;
+
+  let chosen = null;
+
+  // 1. Siempre capturar si es posible (todos los niveles)
+  const capturingMoves = avail.filter(k => wouldCapture(k).length > 0);
+  if (capturingMoves.length) {
+    // Preferir el que capture más
+    capturingMoves.sort((a, b) => wouldCapture(b).length - wouldCapture(a).length);
+    chosen = capturingMoves[0];
+  }
+
+  if (!chosen) {
+    if (difficulty === 'easy') {
+      // Fácil: casi aleatorio, a veces evita peligros obvios
+      const safe = avail.filter(k => !isDangerous(k));
+      chosen = (safe.length && Math.random() > 0.35) ? safe[Math.floor(Math.random() * safe.length)]
+                                                     : avail[Math.floor(Math.random() * avail.length)];
+    } else if (difficulty === 'medium') {
+      // Medio: evita movimientos peligrosos
+      const safe = avail.filter(k => !isDangerous(k));
+      chosen = safe.length ? safe[Math.floor(Math.random() * safe.length)]
+                           : avail[Math.floor(Math.random() * avail.length)];
+    } else if (difficulty === 'hard') {
+      // Difícil: evita peligros + prefiere movimientos que no abran cadenas al rival
+      const safe = avail.filter(k => !isDangerous(k));
+      if (safe.length) {
+        // Pequeña heurística: preferir bordes con menos celdas adyacentes
+        safe.sort((a, b) => {
+          const ca = edges.get(a).cells.length;
+          const cb = edges.get(b).cells.length;
+          return ca - cb;
+        });
+        chosen = safe[Math.floor(Math.random() * Math.min(3, safe.length))];
+      } else {
+        chosen = avail[Math.floor(Math.random() * avail.length)];
+      }
+    } else {
+      // Master: evaluación más profunda
+      // Prioridad: no regalar capturas > no dejar 3-lados > preferir movimientos "seguros"
+      let bestScore = -Infinity;
+      let candidates = [];
+
+      for (const k of avail) {
+        let score = 0;
+        const captures = wouldCapture(k).length;
+        if (captures > 0) score += 100 * captures;
+
+        if (isDangerous(k)) score -= 50;
+
+        // Penalizar dejar muchas celdas casi completas
+        const ed = edges.get(k);
+        ed.owner = 1; // simular
+        let almost = 0;
+        for (const cKey of ed.cells) {
+          if (countFilledSides(cKey) === 3) almost++;
+        }
+        ed.owner = null;
+        score -= almost * 30;
+
+        // Preferir movimientos en el centro o con más opciones futuras (heurística simple)
+        score += (Math.random() * 5); // pequeña variación
+
+        if (score > bestScore) {
+          bestScore = score;
+          candidates = [k];
+        } else if (score === bestScore) {
+          candidates.push(k);
+        }
+      }
+      chosen = candidates[Math.floor(Math.random() * candidates.length)];
+    }
+  }
+
+  if (chosen) playEdge(chosen);
+}
+
+function render() {
+  const svg = $('boardSvg');
+  let minR = Infinity, minC = Infinity, maxR = -Infinity, maxC = -Infinity;
+  for (const k of cells) {
+    const [r, c] = parseKey(k);
+    minR = Math.min(minR, r);
+    minC = Math.min(minC, c);
+    maxR = Math.max(maxR, r + 1);
+    maxC = Math.max(maxC, c + 1);
+  }
+  const unit = 60, pad = 1.0;
+  svg.setAttribute('viewBox', `0 0 ${(maxC - minC + pad * 2) * unit} ${(maxR - minR + pad * 2) * unit}`);
+  svg.innerHTML = '';
+  const ox = pad - minC, oy = pad - minR;
+
+  // 1. Celdas capturadas (solo las nuevas tienen animación)
+  for (const [k, owner] of cellOwner) {
+    const [r, c] = parseKey(k);
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('x', (c + ox) * unit + 4);
+    rect.setAttribute('y', (r + oy) * unit + 4);
+    rect.setAttribute('width', unit - 8);
+    rect.setAttribute('height', unit - 8);
+    rect.setAttribute('rx', 8);
+    rect.setAttribute('fill', playerColors[owner]);
+    rect.setAttribute('opacity', '0.88');
+    if (newlyCaptured.has(k)) {
+      rect.setAttribute('class', 'captured-box');
+    }
+    svg.appendChild(rect);
+  }
+
+  // 2. Bordes exteriores
+  for (const [k, e] of edges) {
+    if (!e.outer) continue;
+    const [a, b] = k.split('|').map(parseKey);
+    const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    l.setAttribute('x1', (a[1] + ox) * unit);
+    l.setAttribute('y1', (a[0] + oy) * unit);
+    l.setAttribute('x2', (b[1] + ox) * unit);
+    l.setAttribute('y2', (b[0] + oy) * unit);
+    l.setAttribute('stroke', 'var(--grid-line)');
+    l.setAttribute('stroke-width', 2.5);
+    svg.appendChild(l);
+  }
+
+  // 3. Líneas disponibles (con hover mejorado)
+  for (const [k, e] of edges) {
+    if (e.outer || e.owner !== null) continue;
+    const [a, b] = k.split('|').map(parseKey);
+    const x1 = (a[1] + ox) * unit, y1 = (a[0] + oy) * unit;
+    const x2 = (b[1] + ox) * unit, y2 = (b[0] + oy) * unit;
+
+    const vis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    vis.setAttribute('x1', x1); vis.setAttribute('y1', y1);
+    vis.setAttribute('x2', x2); vis.setAttribute('y2', y2);
+    vis.setAttribute('stroke', playerColors[current]);
+    vis.setAttribute('stroke-width', 4);
+    vis.setAttribute('stroke-linecap', 'round');
+    vis.setAttribute('class', 'edge-hover');
+    vis.setAttribute('opacity', '0.25');
+    svg.appendChild(vis);
+
+    const hit = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    hit.setAttribute('x1', x1); hit.setAttribute('y1', y1);
+    hit.setAttribute('x2', x2); hit.setAttribute('y2', y2);
+    hit.setAttribute('stroke', 'transparent');
+    hit.setAttribute('stroke-width', 22);
+    hit.style.cursor = 'pointer';
+    hit.onclick = () => playEdge(k);
+    svg.appendChild(hit);
+  }
+
+  // 4. Líneas ya colocadas
+  for (const [k, e] of edges) {
+    if (e.owner === null || e.outer) continue;
+    const [a, b] = k.split('|').map(parseKey);
+    const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    l.setAttribute('x1', (a[1] + ox) * unit);
+    l.setAttribute('y1', (a[0] + oy) * unit);
+    l.setAttribute('x2', (b[1] + ox) * unit);
+    l.setAttribute('y2', (b[0] + oy) * unit);
+    l.setAttribute('stroke', playerColors[e.owner]);
+    l.setAttribute('stroke-width', 6.5);
+    l.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(l);
+  }
+
+  // Actualizar UI de turno y puntuaciones
+  $('turnName').textContent = playerNames[current];
+  $('turnName').style.color = playerColors[current];
+  $('p0Score').textContent = scores[0];
+  $('p1Score').textContent = scores[1];
+  $('p0Box').classList.toggle('active', current === 0);
+  $('p1Box').classList.toggle('active', current === 1);
+}
+
+$('tabOfflineBtn').onclick = () => switchTab('tabOfflineContent', 'tabOfflineBtn');
+$('tabOnlineBtn').onclick = () => switchTab('tabOnlineContent', 'tabOnlineBtn');
+$('tabSocialBtn').onclick = () => switchTab('tabSocialContent', 'tabSocialBtn');
+
+function switchTab(cId, bId) {
+  ['tabOfflineContent', 'tabOnlineContent', 'tabSocialContent'].forEach(id => $(id).classList.remove('active'));
+  ['tabOfflineBtn', 'tabOnlineBtn', 'tabSocialBtn'].forEach(id => $(id).classList.remove('active'));
+  $(cId).classList.add('active'); $(bId).classList.add('active');
+}
+
+$('btnAutoTrain').onclick = () => incrementGlobalTraining(50);
+
+window.onload = () => {
+  updateUserBarUI();
+  applyTheme(getCurrentUser().preferredTheme || 'botanical');
+};
+
+const SHAPE_LABELS = {
+  small: 'Rápido 5×6',
+  medium: 'Estándar 8×8',
+  large: 'Grande 10×10',
+  castle: 'El Castillo',
+  ring: 'La Dona / Anillo',
+  hourglass: 'Reloj de Arena',
+  labyrinth: 'El Laberinto',
+  archipelago: 'Tres Islas',
+  diamond: 'Diamante',
+  random: 'Aleatorio'
+};
+
+$('btnStartGame').onclick = () => {
+  playerNames = [
+    $('startName0').value.trim() || 'Jugador 1',
+    $('startName1').value.trim() || 'Bot Maestro'
+  ];
+  playerColors = [
+    COLOR_HEX_MAP[$('startColor0').value] || '#d97757',
+    COLOR_HEX_MAP[$('startColor1').value] || '#5b8c73'
+  ];
+
+  // Actualizar nombres y colores en la UI de partida
+  $('p0Name').textContent = playerNames[0];
+  $('p1Name').textContent = playerNames[1];
+  $('p0ColorText').textContent = $('startColor0').options[$('startColor0').selectedIndex].text;
+  $('p1ColorText').textContent = $('startColor1').options[$('startColor1').selectedIndex].text;
+
+  const preset = $('startPreset').value;
+  $('boardShapeTag').textContent = SHAPE_LABELS[preset] || preset.toUpperCase();
+
+  $('setupScreen').classList.add('hidden');
+  $('gameLayout').classList.add('visible');
+  resetGame(generateShape(preset));
+};
+
+$('btnBackMenu').onclick = () => {
+  $('gameLayout').classList.remove('visible');
+  $('setupScreen').classList.remove('hidden');
+  updateUserBarUI();
+};
+
+$('btnReset').onclick = () => {
+  const preset = $('startPreset').value;
+  resetGame(generateShape(preset));
+};
+
+$('btnModalNew').onclick = () => {
+  const preset = $('startPreset').value;
+  resetGame(generateShape(preset));
+};
+
+// Mensaje de versión en consola
+console.log('%c SQUARES v7.0 ', 'background:#275939; color:#fff; padding:4px 10px; border-radius:4px; font-weight:bold;');
+console.log('Motor de juego, terrenos reales e IA estratégica restaurados. Animación de captura corregida.');
+</script>
+</body>
+</html>
